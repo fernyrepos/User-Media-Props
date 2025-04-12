@@ -23,91 +23,157 @@ namespace MediaProps
 		public override void SpawnSetup(Map map, bool respawningAfterLoad)
 		{
 			base.SpawnSetup(map, respawningAfterLoad);
-			SetupAudio();
+			// Only setup ambient audio if not configured to play on incident
+			if (!playOnIncident)
+			{
+				SetupAudio();
+			}
 		}
 
 		public override void Tick()
 		{
 			base.Tick();
-			if (sustainer != null)
+			if (sustainer != null && !sustainer.Ended)
 			{
-				if (sustainer.Ended)
-				{
-					SoundInfo soundInfo = SoundInfo.InMap(new TargetInfo(Position, Map, false), MaintenanceType.PerTick);
-					sustainer = customSoundDef.TrySpawnSustainer(soundInfo);
-					if (sustainer != null)
-					{
-						sustainer.info.volumeFactor = volume;
-					}
-				}
 				sustainer.Maintain();
 			}
 		}
 
 		SoundDef customSoundDef;
-		public void SetupAudio(bool forcePlay = false)
+		// Sets up the regular, potentially looping audio sustainer
+		public void SetupAudio()
 		{
-			if (playOnIncident && !forcePlay)
+			// If this building plays on incident, don't set up ambient audio
+			if (playOnIncident)
 			{
-				return; // Return early if playOnIncident is enabled and not forced
+				// Ensure any existing ambient sustainer is stopped
+				if (sustainer != null)
+				{
+					sustainer.End();
+					sustainer = null;
+				}
+				return;
 			}
+
+			// End existing sustainer before setting up a new one
 			if (sustainer != null)
 			{
 				sustainer.End();
+				sustainer = null;
 			}
 
-			if (!string.IsNullOrEmpty(selectedFilePath) && File.Exists(selectedFilePath))
+			if (string.IsNullOrEmpty(selectedFilePath) || !File.Exists(selectedFilePath))
 			{
-				// Generate a unique defName using ThingIDNumber
-				string uniqueDefName = "CustomSound_AudioBuilding_" + this.thingIDNumber;
-
-				// Create a custom SoundDef with the specified sustain properties
-				customSoundDef = new SoundDef
-				{
-					defName = uniqueDefName,
-					context = ignoreTimeAndPosition ? SoundContext.Any : SoundContext.MapOnly, // Conditional context
-					sustain = true,
-					priorityMode = ignoreTimeAndPosition ? VoicePriorityMode.PrioritizeNewest : VoicePriorityMode.PrioritizeNearest,
-					sustainFadeoutTime = 0.1f,  // Fade-out when stopping the sound
-				};
-
-				// Configure the SubSoundDef with specified properties
-				SubSoundDef subSoundDef = new SubSoundDef
-				{
-					muteWhenPaused = ignoreTimeAndPosition ? false : true,
-					tempoAffectedByGameSpeed = false,
-					onCamera = ignoreTimeAndPosition ? true : false,
-					sustainLoop = true,
-					sustainAttack = 0.1f,       // Optional fade-in time
-					volumeRange = new FloatRange(volume, volume),  // Use the volume field for dynamic control
-					distRange = distanceRange           // Audible distance from 10 to 20 units
-				};
-
-				// Add a DynamicAudioGrain with the selected file path
-				DynamicAudioGrain dynamicGrain = new DynamicAudioGrain
-				{
-					filePath = selectedFilePath
-				};
-
-				// Assign the grain and add SubSoundDef to SoundDef
-				subSoundDef.grains = new List<AudioGrain> { dynamicGrain };
-				customSoundDef.subSounds = new List<SubSoundDef> { subSoundDef };
-				customSoundDef.ResolveReferences();
-				// Use SoundInfo to play sound at the building's location
-				SoundInfo soundInfo = ignoreTimeAndPosition ? SoundInfo.OnCamera( MaintenanceType.PerTick) : SoundInfo.InMap(new TargetInfo(Position, Map, false), MaintenanceType.PerTick);
-
-				// Spawn the sustainer using the custom SoundDef
-				sustainer = customSoundDef.TrySpawnSustainer(soundInfo);
-				if (sustainer != null)
-				{
-					sustainer.info.volumeFactor = volume;
-				}
-				else
-				{
-					Log.Error($"Failed to spawn sustainer for custom sound '{uniqueDefName}'.");
-				}
-				sustainer.Maintain();
+				return; // No file selected or file doesn't exist
 			}
+
+			// Generate a unique defName using ThingIDNumber for the sustainer sound
+			string uniqueDefName = "CustomSustainer_AudioBuilding_" + this.thingIDNumber;
+
+			// Create a custom SoundDef for the sustainer
+			customSoundDef = new SoundDef // Reuse the class field if needed elsewhere, otherwise could be local
+			{
+				defName = uniqueDefName,
+				context = ignoreTimeAndPosition ? SoundContext.Any : SoundContext.MapOnly,
+				sustain = true, // Sustainers always sustain
+				priorityMode = ignoreTimeAndPosition ? VoicePriorityMode.PrioritizeNewest : VoicePriorityMode.PrioritizeNearest,
+				sustainFadeoutTime = 0.1f,
+			};
+
+			// Configure the SubSoundDef for the sustainer
+			SubSoundDef subSoundDef = new SubSoundDef
+			{
+				muteWhenPaused = !ignoreTimeAndPosition,
+				tempoAffectedByGameSpeed = false,
+				onCamera = ignoreTimeAndPosition,
+				sustainLoop = true, // Sustainers generally loop
+				sustainAttack = 0.1f,
+				volumeRange = new FloatRange(volume, volume),
+				distRange = distanceRange
+			};
+
+			// Add a DynamicAudioGrain
+			DynamicAudioGrain dynamicGrain = new DynamicAudioGrain
+			{
+				filePath = selectedFilePath
+			};
+
+			// Assign grain and SubSoundDef
+			subSoundDef.grains = new List<AudioGrain> { dynamicGrain };
+			customSoundDef.subSounds = new List<SubSoundDef> { subSoundDef };
+			customSoundDef.ResolveReferences();
+
+			// Determine SoundInfo for the sustainer
+			SoundInfo soundInfo = ignoreTimeAndPosition
+				? SoundInfo.OnCamera(MaintenanceType.PerTick)
+				: SoundInfo.InMap(new TargetInfo(Position, Map, false), MaintenanceType.PerTick);
+
+			// Spawn the sustainer
+			sustainer = customSoundDef.TrySpawnSustainer(soundInfo);
+			if (sustainer != null)
+			{
+				sustainer.info.volumeFactor = volume; // Apply volume to the sustainer instance
+			}
+			else
+			{
+				Log.Error($"Failed to spawn sustainer for custom sound '{uniqueDefName}'.");
+			}
+			// Maintain is handled in Tick
+		}
+
+		// Plays the configured sound once, typically for incidents
+		public void PlayIncidentSound()
+		{
+			if (string.IsNullOrEmpty(selectedFilePath) || !File.Exists(selectedFilePath))
+			{
+				return; // No file selected or file doesn't exist
+			}
+
+			// Generate a unique defName using ThingIDNumber for the one-shot sound
+			// Append "OneShot" to avoid potential conflicts with sustainer defName if SetupAudio is called later
+			string uniqueDefName = "CustomOneShot_AudioBuilding_" + this.thingIDNumber;
+
+			// Create a temporary SoundDef specifically for one-shot playback
+			SoundDef oneShotSoundDef = new SoundDef
+			{
+				defName = uniqueDefName,
+				context = ignoreTimeAndPosition ? SoundContext.Any : SoundContext.MapOnly,
+				sustain = false, // One-shot sounds do not sustain
+				priorityMode = ignoreTimeAndPosition ? VoicePriorityMode.PrioritizeNewest : VoicePriorityMode.PrioritizeNearest,
+			};
+
+			// Configure the SubSoundDef for one-shot
+			SubSoundDef subSoundDef = new SubSoundDef
+			{
+				muteWhenPaused = !ignoreTimeAndPosition,
+				tempoAffectedByGameSpeed = false,
+				onCamera = ignoreTimeAndPosition,
+				sustainLoop = false, // Ensure no looping
+				volumeRange = new FloatRange(volume, volume),
+				distRange = distanceRange
+			};
+
+			// Add a DynamicAudioGrain
+			DynamicAudioGrain dynamicGrain = new DynamicAudioGrain
+			{
+				filePath = selectedFilePath
+			};
+
+			// Assign grain and SubSoundDef
+			subSoundDef.grains = new List<AudioGrain> { dynamicGrain };
+			oneShotSoundDef.subSounds = new List<SubSoundDef> { subSoundDef };
+			oneShotSoundDef.ResolveReferences();
+
+			// Determine SoundInfo for one-shot
+			SoundInfo soundInfo = ignoreTimeAndPosition
+				? SoundInfo.OnCamera(MaintenanceType.None) // No maintenance needed for one-shot
+				: SoundInfo.InMap(new TargetInfo(Position, Map, false), MaintenanceType.None);
+
+			// Apply volume setting directly to SoundInfo for PlayOneShot
+			soundInfo.volumeFactor = volume;
+
+			// Play the sound once
+			oneShotSoundDef.PlayOneShot(soundInfo);
 		}
 
 		public override void DrawAt(Vector3 drawLoc, bool flip = false)
@@ -143,7 +209,7 @@ namespace MediaProps
 			Scribe_Values.Look(ref isInvisible, "isInvisible", false);
 			Scribe_Values.Look(ref ignoreTimeAndPosition, "ignoreTimeAndPosition", false); // Save new field
 			Scribe_Values.Look(ref playOnIncident, "playOnIncident", false);
-			Scribe_Defs.Look(ref selectedIncidentDef, "selectedIncidentDef"); // Updated to Scribe_Defs.Look
+			Scribe_Defs.Look(ref selectedIncidentDef, "selectedIncidentDef");
 		}
 
 		public override void Destroy(DestroyMode mode = DestroyMode.Vanish)

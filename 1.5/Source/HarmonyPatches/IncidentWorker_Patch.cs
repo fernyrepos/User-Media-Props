@@ -27,7 +27,7 @@ namespace MediaProps.HarmonyPatches
             {
                 if (audioBuilding.playOnIncident && audioBuilding.selectedIncidentDef == __instance.def)
                 {
-                    audioBuilding.SetupAudio(forcePlay: true);
+                    audioBuilding.PlayIncidentSound();
                 }
             }
         }
