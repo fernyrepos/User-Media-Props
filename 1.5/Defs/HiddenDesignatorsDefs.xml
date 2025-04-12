@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+	<VFEProps.HiddenDesignatorsDef>
+		<defName>FernyUserMedia_HiddenDesignators</defName>
+		<hiddenDesignators>		
+			<li>ImageBuilding</li>	
+			<li>AudioBuilding</li>
+		</hiddenDesignators>							
+	</VFEProps.HiddenDesignatorsDef>
+</Defs>

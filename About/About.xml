@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ModMetaData>
+  <name>User Media Props</name>
+  <author>ferny</author>
+  <packageId>ferny.UserMediaProps</packageId>
+  <description>Import your own media into the game.</description>
+  <supportedVersions>
+    <li>1.5</li>
+  </supportedVersions>
+	<modDependencies>
+		<li>
+			<packageId>brrainz.harmony</packageId>
+			<displayName>Harmony</displayName>
+			<downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+			<steamWorkshopUrl>https://steamcommunity.com/workshop/filedetails/?id=2009463077</steamWorkshopUrl>
+		</li>
+		<li>
+			<packageId>VanillaExpanded.VFEPropsandDecor</packageId>
+			<displayName>Vanilla Furniture Expanded - Props and Decor</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2102143149</steamWorkshopUrl>
+		</li>
+		<li>
+			<packageId>ferny.propscore</packageId>
+			<displayName>More Prop Categories</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/3167021055</steamWorkshopUrl>
+		</li>
+	</modDependencies>
+	<loadAfter>
+		<li>Ludeon.RimWorld</li>
+		<li>Ludeon.RimWorld.Royalty</li>
+		<li>Ludeon.RimWorld.Biotech</li>
+		<li>Ludeon.RimWorld.Anomaly</li>
+		<li>brrainz.harmony</li>
+		<li>ferny.propscore</li>
+	</loadAfter>
+</ModMetaData>

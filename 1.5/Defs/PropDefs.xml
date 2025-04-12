@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<VFEProps.PropDef>
+		<defName>ferny_usermedia1</defName>
+		<category>Ferny_Media</category>
+		<priority>1</priority>
+		<prop>AudioBuilding</prop>
+		<useMatsInsteadOfSilver>false</useMatsInsteadOfSilver>
+	</VFEProps.PropDef>
+	<VFEProps.PropDef>
+		<defName>ferny_usermedia2</defName>
+		<category>Ferny_Media</category>
+		<priority>2</priority>
+		<prop>ImageBuilding</prop>
+		<useMatsInsteadOfSilver>false</useMatsInsteadOfSilver>
+	</VFEProps.PropDef>
+</Defs>
