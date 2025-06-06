@@ -90,7 +90,6 @@ namespace MediaProps
 			if (Widgets.ButtonText(new Rect(inRect.width - 120f, inRect.height - 35f, 100f, 30f), "Apply"))
 			{
 				ApplySettings();
-				Close();
 			}
 		}
 
