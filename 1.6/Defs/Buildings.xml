@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>ImageBuilding</defName>
+    <label>image</label>
+    <description>Render a custom image.</description>
+    <thingClass>MediaProps.ImageBuilding</thingClass>
+    <graphicData>
+      <texPath>ImageBuilding</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1,1)</drawSize>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <statBases>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <drawerType>RealtimeOnly</drawerType>
+    <drawOffscreen>true</drawOffscreen>
+    <useHitPoints>False</useHitPoints>
+    <scatterableOnMapGen>false</scatterableOnMapGen>
+    <size>(1,1)</size>
+    <designationCategory>Misc</designationCategory>
+    <uiOrder>2000</uiOrder>
+    <passability>Standable</passability>
+    <building>
+      <sowTag>SupportPlantsOnly</sowTag>
+      <canPlaceOverImpassablePlant>false</canPlaceOverImpassablePlant>
+      <ai_chillDestination>false</ai_chillDestination>
+      <wakeDormantPawnsOnConstruction>false</wakeDormantPawnsOnConstruction>
+      <artificialForMeditationPurposes>false</artificialForMeditationPurposes>
+    </building>
+    <designationHotKey>Misc10</designationHotKey>
+  </ThingDef>
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>AudioBuilding</defName>
+    <label>audio</label>
+    <description>Loop a custom audio file.</description>
+    <thingClass>MediaProps.AudioBuilding</thingClass>
+    <tickerType>Normal</tickerType>
+    <graphicData>
+      <texPath>AudioBuilding</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1,1)</drawSize>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <statBases>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <drawerType>RealtimeOnly</drawerType>
+    <drawOffscreen>true</drawOffscreen>
+    <useHitPoints>False</useHitPoints>
+    <scatterableOnMapGen>false</scatterableOnMapGen>
+    <size>(1,1)</size>
+    <designationCategory>Misc</designationCategory>
+    <uiOrder>2000</uiOrder>
+    <passability>Standable</passability>
+    <building>
+      <sowTag>SupportPlantsOnly</sowTag>
+      <canPlaceOverImpassablePlant>false</canPlaceOverImpassablePlant>
+      <ai_chillDestination>false</ai_chillDestination>
+      <wakeDormantPawnsOnConstruction>false</wakeDormantPawnsOnConstruction>
+      <artificialForMeditationPurposes>false</artificialForMeditationPurposes>
+    </building>
+    <designationHotKey>Misc10</designationHotKey>
+  </ThingDef>
+
+</Defs>
